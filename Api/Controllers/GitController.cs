@@ -1,31 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Service;
+using Service.Model;
+using System;
+using System.Threading.Tasks;
 
 namespace Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class GitController : ControllerBase
+    public class StatisticsGitController : ControllerBase
     {
-      
 
-        private readonly ILogger<GitController> _logger;
 
-        public GitController(ILogger<GitController> logger)
+        private readonly ILogger<StatisticsGitController> _logger;
+
+        public StatisticsGitController(ILogger<StatisticsGitController> logger)
         {
             _logger = logger;
         }
 
         [HttpGet]
-        public ResponsePerRepository Get()
+        public ActionResult<ResponsePerRepository> Get(string gitUrl)
         {
-            Class1 class1 = new Class1();            
-            return class1.Clone("https://github.com/dotnet/installer/tree/HelixImages.git");
+            try
+            {
+                GitRepositoryService repositoryService = new GitRepositoryService();
+
+                return Ok(repositoryService.GetTotal(gitUrl));
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
     }
 }

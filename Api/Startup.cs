@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Collections.Generic;
 
 namespace Api
 {
@@ -28,13 +29,13 @@ namespace Api
                 c.SwaggerDoc("v1",
                     new OpenApiInfo
                     {
-                        Title = "Indicadores Econômicos",
+                        Title = "How many lines?",
                         Version = "v1",
-                        Description = "Exemplo de API REST criada com o ASP.NET Core 2.2 para consulta a indicadores econômicos",
+                        Description = "Example of REST API created with ASP.NET Core 3.1 to obtain the total lines and bytes of files from a git repository",
                         Contact = new OpenApiContact
                         {
-                            Name = "Renato Groffe",
-                            Url = new Uri("https://github.com/renatogroffe")
+                            Name = "Jhonson Rodrigues",
+                            Url = new Uri("https://github.com/jhonsonk/JGit")
                         }
                     });
             });
@@ -61,8 +62,9 @@ namespace Api
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(c => {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Indicadores Econômicos V1");
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "V1");
             });
         }
     }
