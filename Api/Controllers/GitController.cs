@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using Service;
 using Service.Model;
 using System;
-using System.Threading.Tasks;
 
 namespace Api.Controllers
 {
@@ -11,8 +10,6 @@ namespace Api.Controllers
     [Route("[controller]")]
     public class StatisticsGitController : ControllerBase
     {
-
-
         private readonly ILogger<StatisticsGitController> _logger;
 
         public StatisticsGitController(ILogger<StatisticsGitController> logger)
