@@ -24,7 +24,8 @@ namespace Service
         private string tempPath = "";
         public GitRepositoryService()
         {
-            tempPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + @"\temp\" + Guid.NewGuid().ToString() + @"\";
+            //tempPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + @"\temp\" + Guid.NewGuid().ToString() + @"\";
+            tempPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "temp", Guid.NewGuid().ToString());
         }
 
         public ResponsePerRepository GetTotal(string gitUrl)
@@ -46,7 +47,7 @@ namespace Service
             string nameRepository = uri[2].Replace("/", String.Empty);
 
             //make url from download           
-            string urlBase = "https://" + uri[0] +"/"+ uri[1] + "/" + uri[2] + "/archive/" + nameFile;
+            string urlBase = "https://" + uri[0] + "/" + uri[1] + "/" + uri[2] + "/archive/" + nameFile;
 
             byte[] byteFile;
             //Downdload archive
@@ -107,7 +108,7 @@ namespace Service
 
             //Sum of lines of archives
             foreach (ZipArchiveEntry archive in archives.ToList())
-                perExtension.TotalLines += File.ReadAllLines(tempPath + archive.FullName).Count();
+                perExtension.TotalLines += File.ReadAllLines(Path.Combine(tempPath, archive.FullName)).Count();
 
             return perExtension;
         }
