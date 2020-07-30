@@ -13,7 +13,7 @@ namespace Service
     public class GitRepositoryService
     {
         #region Mensagens
-        private string DOWNLOAD_ERROR = "The repository is invalid or not found";        
+        private string DOWNLOAD_ERROR = "The repository is invalid or not found";
         private string ERROR = "An error has occurred when getting the repository";
         #endregion
 
@@ -33,13 +33,12 @@ namespace Service
 
                 //Default name
                 String nameFile = "master.zip";
-
-                gitUrl = gitUrl.ToLower().Replace("http://", String.Empty).Replace("https://", String.Empty);
+                gitUrl = gitUrl.ToLower().Replace("http://", String.Empty).Replace("https://", String.Empty).Replace(".git", String.Empty);
 
                 var uri = gitUrl.Split('/');
                 //is it a branch?
                 if (uri.Length > 3)
-                    nameFile = uri[4].Split('.')[0] + ".zip";
+                    nameFile = uri[4] + ".zip";
 
                 //Get Repository name
                 string nameRepository = uri[2].Replace("/", String.Empty);
