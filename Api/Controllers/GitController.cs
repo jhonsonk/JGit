@@ -32,5 +32,21 @@ namespace Api.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("Dom")]
+        public ActionResult GetDoM(string gitUrl)
+        {
+            try
+            {
+                GitRepositoryServices repositoryService = new GitRepositoryServices();
+
+                return Ok(repositoryService.GetTotalaAsync(gitUrl));
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
