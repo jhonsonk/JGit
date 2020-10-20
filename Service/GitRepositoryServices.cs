@@ -18,6 +18,7 @@ namespace Service
         #region Mensagens
         private string ERROR = "An error has occurred when getting the repository";
         #endregion
+       
 
         private string tempPath = "";
         public GitRepositoryServices()
@@ -32,11 +33,12 @@ namespace Service
 
                 if (File.Exists(Path.Combine(tempPath, responsePerRepository.Commit)))
                 {
-                    //string stringFile = File.ReadAllText(Path.Combine(tempPath, responsePerRepository.Commit));
-                    //return JsonConvert.DeserializeObject<ResponsePerRepository>(stringFile);
+                    string stringFile = File.ReadAllText(Path.Combine(tempPath, responsePerRepository.Commit));
+                    return JsonConvert.DeserializeObject<ResponsePerRepository>(stringFile);
                 }
 
                 List<GitRow> gitRows = new List<GitRow>();
+
                 GetNodesRowHeader(gitUrl, gitRows);
 
                 List<Task> tasks = new List<Task>();
@@ -78,7 +80,6 @@ namespace Service
             return responsePerRepository;
         }
 
-
         public List<GitRow> GetNodesRowHeader(string url, List<GitRow> returns)
         {
             WebClient client = new WebClient();
@@ -111,11 +112,6 @@ namespace Service
             }
             return returns;
         }
-
-
-
-
-
 
         public GitRow GetFileInformation(GitRow row)
         {
