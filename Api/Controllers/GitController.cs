@@ -23,7 +23,7 @@ namespace Api.Controllers
             {
                 GitRepositoryServices repositoryService = new GitRepositoryServices();
 
-                return Ok(repositoryService.GetTotalaAsync(gitUrl));
+                return Ok(repositoryService.GetTotal(gitUrl));
             }
             catch (Exception e)
             {

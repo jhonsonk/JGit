@@ -24,7 +24,7 @@ namespace Service
         {
             tempPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "temp");
         }
-        public ResponsePerRepository GetTotalaAsync(string gitUrl)
+        public ResponsePerRepository GetTotal(string gitUrl)
         {
             try
             {
@@ -32,16 +32,21 @@ namespace Service
 
                 if (File.Exists(Path.Combine(tempPath, responsePerRepository.Commit)))
                 {
-                    string stringFile = File.ReadAllText(Path.Combine(tempPath, responsePerRepository.Commit));
-                    return JsonConvert.DeserializeObject<ResponsePerRepository>(stringFile);
+                    //string stringFile = File.ReadAllText(Path.Combine(tempPath, responsePerRepository.Commit));
+                    //return JsonConvert.DeserializeObject<ResponsePerRepository>(stringFile);
                 }
 
                 List<GitRow> gitRows = new List<GitRow>();
                 GetNodesRowHeader(gitUrl, gitRows);
+
+                List<Task> tasks = new List<Task>();
                 foreach (var item in gitRows)
                 {
-                    GetFileInformation(item);
+                    Task task = Task.Run(() => GetFileInformation(item));
+                    tasks.Add(task);
                 }
+
+                Task.WaitAll(tasks.ToArray());
 
                 responsePerRepository.PerExtension = GetTotalPerGroupExtension(gitRows);
                 responsePerRepository.TotalBytes = responsePerRepository.PerExtension.Select(a => a.TotalBytes).Sum();
