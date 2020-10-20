@@ -25,6 +25,7 @@ namespace Service
         {
             tempPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "temp");
         }
+
         public ResponsePerRepository GetTotal(string gitUrl)
         {
             try
@@ -104,7 +105,7 @@ namespace Service
                 GitRow rowFile = new GitRow();
                 HtmlNode item = node.ChildNodes.SelectMany(a => a.Attributes).Where(a => a.Value == "rowheader").FirstOrDefault().OwnerNode;
                 HtmlNode itemSpan = item.ChildNodes.ToList().Where(a => a.Name == "span").FirstOrDefault();
-                
+
                 if (itemSpan == null)
                     continue;
 
