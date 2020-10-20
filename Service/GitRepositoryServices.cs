@@ -104,13 +104,15 @@ namespace Service
                 GitRow rowFile = new GitRow();
                 HtmlNode item = node.ChildNodes.SelectMany(a => a.Attributes).Where(a => a.Value == "rowheader").FirstOrDefault().OwnerNode;
                 HtmlNode itemSpan = item.ChildNodes.ToList().Where(a => a.Name == "span").FirstOrDefault();
-
+                
                 if (itemSpan == null)
                     continue;
 
                 rowFile.Name = itemSpan.InnerText;
                 rowFile.Url = itemSpan.ChildNodes[0].GetAttributes().Where(a => a.Name == "href").FirstOrDefault().Value;
 
+
+                Console.WriteLine(rowFile.Name);
                 if (node.ChildNodes.SelectMany(a => a.Attributes).SelectMany(a => a.OwnerNode.ChildNodes).SelectMany(a => a.Attributes).Where(a => a.Value == "Directory").ToList().Count > 1)
                 {
                     rowFile.IsDirectory = true;
