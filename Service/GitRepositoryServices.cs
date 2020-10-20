@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using Newtonsoft.Json;
 using Service.Model;
 using System;
 using System.Collections.Generic;
@@ -6,29 +7,74 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
+using Tools;
 
 namespace Service
 {
     public class GitRepositoryServices
     {
         #region Mensagens
-        private string DOWNLOAD_ERROR = "The repository is invalid or not found";
         private string ERROR = "An error has occurred when getting the repository";
         #endregion
-
 
         private string tempPath = "";
         public GitRepositoryServices()
         {
-            tempPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "temp", Guid.NewGuid().ToString());
+            tempPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "temp");
+        }
+        public ResponsePerRepository GetTotalaAsync(string gitUrl)
+        {
+            try
+            {
+                ResponsePerRepository responsePerRepository = GetInformationGit(gitUrl);
+
+                if (File.Exists(Path.Combine(tempPath, responsePerRepository.Commit)))
+                {
+                    string stringFile = File.ReadAllText(Path.Combine(tempPath, responsePerRepository.Commit));
+                    return JsonConvert.DeserializeObject<ResponsePerRepository>(stringFile);
+                }
+
+                List<GitRow> gitRows = new List<GitRow>();
+                GetNodesRowHeader(gitUrl, gitRows);
+                foreach (var item in gitRows)
+                {
+                    GetFileInformation(item);
+                }
+
+                responsePerRepository.PerExtension = GetTotalPerGroupExtension(gitRows);
+                responsePerRepository.TotalBytes = responsePerRepository.PerExtension.Select(a => a.TotalBytes).Sum();
+                responsePerRepository.TotalLines = responsePerRepository.PerExtension.Select(a => a.TotalLines).Sum();
+                responsePerRepository.TotalFiles = responsePerRepository.PerExtension.Select(a => a.TotalFiles).Sum();
+
+                FileTools.SaveFile(responsePerRepository.Commit, Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(responsePerRepository)), tempPath);
+                return responsePerRepository;
+            }
+            catch
+            {
+                throw new Exception(ERROR);
+            }
         }
 
-        //List<GitRow> returnsa = new List<GitRow>();
+        public ResponsePerRepository GetInformationGit(string url)
+        {
+            ResponsePerRepository responsePerRepository = new ResponsePerRepository();
 
-        ///Obter a pagina 
-        public List<GitRow> GetNodesRowHeader(string url,  List<GitRow> returns)
+            WebClient client = new WebClient();
+            Stream data = client.OpenRead(new Uri(url));
+            StreamReader reader = new StreamReader(data);
+            string htmlContent = reader.ReadToEnd();
+            var document = new HtmlDocument();
+            document.LoadHtml(htmlContent);
+            responsePerRepository.Commit = document.DocumentNode.SelectNodes("//a[@class=\"d-none js-permalink-shortcut\"]").ToList().SelectMany(a => a.Attributes).Where(a => a.Name == "href").FirstOrDefault().Value;
+            responsePerRepository.NameRepository = document.DocumentNode.SelectNodes("//a[@data-pjax=\"#js-repo-pjax-container\"]").ToList().SelectMany(a => a.Attributes).Where(a => a.Name == "href").FirstOrDefault().Value;
+            responsePerRepository.Commit = responsePerRepository.Commit.Split('/')[responsePerRepository.Commit.Split('/').Length - 1];
+            return responsePerRepository;
+        }
+
+
+        public List<GitRow> GetNodesRowHeader(string url, List<GitRow> returns)
         {
             WebClient client = new WebClient();
             Stream data = client.OpenRead(new Uri(url));
@@ -38,7 +84,6 @@ namespace Service
             document.LoadHtml(htmlContent);
             List<HtmlNode> nodeRoot = document.DocumentNode.SelectNodes("//div[@role=\"row\"]").ToList().Where(a => a.GetClasses().Contains("Box-row")).ToList();
 
-            Task<List<GitRow>> task = null;
             foreach (HtmlNode node in nodeRoot)
             {
                 GitRow rowFile = new GitRow();
@@ -48,66 +93,61 @@ namespace Service
                 if (itemSpan == null)
                     continue;
 
-                rowFile.name = itemSpan.InnerText;
-                rowFile.url = itemSpan.ChildNodes[0].GetAttributes().Where(a => a.Name == "href").FirstOrDefault().Value;
+                rowFile.Name = itemSpan.InnerText;
+                rowFile.Url = itemSpan.ChildNodes[0].GetAttributes().Where(a => a.Name == "href").FirstOrDefault().Value;
 
                 if (node.ChildNodes.SelectMany(a => a.Attributes).SelectMany(a => a.OwnerNode.ChildNodes).SelectMany(a => a.Attributes).Where(a => a.Value == "Directory").ToList().Count > 1)
                 {
-                    rowFile.isDirectory = true;
-                    task = Task.Factory.StartNew(() => GetNodesRowHeader("https://github.com/" + rowFile.url, returns));                    
+                    rowFile.IsDirectory = true;
+                    GetNodesRowHeader("https://github.com/" + rowFile.Url, returns);
                     continue;
                 }
                 returns.Add(rowFile);
             }
-            try
-            {
-                task.Wait();
-            }
-            catch { 
-            }
             return returns;
         }
 
-        //public List<GitRow> agag(List<GitRow> gitRows, List<GitRow> returns)
-        //{
 
-        //    foreach (GitRow item in gitRows)
-        //    {
-        //        if (item.isDirectory)
-        //        {
-        //            List<GitRow> root = GetNodesRowHeader("https://github.com/" + item.url);
-        //            agag(root, returns);
-        //            continue;
-        //        }
-        //        returns.Add(item);
-        //    }
 
-        //    return returns;
-        //}
 
-        public List<GitRow> GetTotalaAsync(string gitUrl)
+
+
+        public GitRow GetFileInformation(GitRow row)
         {
-            List<GitRow> returnoa = new List<GitRow>();
             try
             {
-                GetNodesRowHeader(gitUrl, returnoa);
-
+                var result = Task.Run(() => DownloadTools.DownloadFile("https://raw.githubusercontent.com/" + row.Url.Replace("blob", ""))).Result;
+                string converted = Encoding.UTF8.GetString(result, 0, result.Length);
+                row.Length = result.Length;
+                row.Extension = row.Name.Split('.')[row.Name.Split('.').Length - 1];
+                row.TotalLines = converted.Split('\n').Length;
+                return row;
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception(ERROR);
+                return row;
             }
-
-            return returnoa;
         }
 
-        public class GitRow
+        public List<ResponsePerExtension> GetTotalPerGroupExtension(List<GitRow> listRows)
         {
-            public string name { get; set; }
-            public string url { get; set; }
-            public bool isDirectory { get; set; }
-            public decimal tamanho { get; set; }
+            IEnumerable<IGrouping<string, GitRow>> groupByExtension = listRows.GroupBy(a => a.Extension);
+            List<ResponsePerExtension> listReturn = new List<ResponsePerExtension>();
+            foreach (var item in groupByExtension)
+            {
+                listReturn.Add(GetTotalPerExtension(item));
+            }
+            return listReturn;
+        }
 
+        internal ResponsePerExtension GetTotalPerExtension(IGrouping<string, GitRow> GitRows)
+        {
+            ResponsePerExtension perExtension = new ResponsePerExtension();
+            perExtension.Extension = GitRows.Key;
+            perExtension.TotalFiles = GitRows.ToList().Count();
+            perExtension.TotalBytes = GitRows.ToList().Select(a => a.Length).Sum();
+            perExtension.TotalLines = GitRows.ToList().Select(a => a.TotalLines).Sum();
+            return perExtension;
         }
     }
 }

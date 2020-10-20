@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Service;
-using Service.Model;
 using System;
 
 namespace Api.Controllers
@@ -18,23 +17,7 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<ResponsePerRepository> Get(string gitUrl)
-        {
-            try
-            {
-                GitRepositoryService repositoryService = new GitRepositoryService();
-
-                return Ok(repositoryService.GetTotal(gitUrl));
-            }
-            catch (Exception e)
-            {
-
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpGet("Dom")]
-        public ActionResult GetDoM(string gitUrl)
+        public ActionResult Get(string gitUrl)
         {
             try
             {

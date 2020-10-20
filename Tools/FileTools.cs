@@ -36,18 +36,5 @@ namespace Tools
                 Directory.CreateDirectory(path);
             }
         }
-
-        /// <summary>
-        /// Delete the directory from all its content
-        /// </summary>
-        /// <param name="path">directory path</param>
-        public static void DeleteDirectory(string path)
-        {
-            if (Directory.Exists(path))
-            {
-                Directory.Delete(path, true);
-            }
-        }
-
     }
 }
