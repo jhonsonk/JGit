@@ -19,17 +19,8 @@ namespace Api.Controllers
         [HttpGet]
         public ActionResult Get(string gitUrl)
         {
-            try
-            {
-                GitRepositoryServices repositoryService = new GitRepositoryServices();
-
-                return Ok(repositoryService.GetTotal(gitUrl));
-            }
-            catch (Exception e)
-            {
-
-                return BadRequest(e.Message);
-            }
+            GitRepositoryServices repositoryService = new GitRepositoryServices();
+            return Ok(repositoryService.GetTotal(gitUrl));
         }
     }
 }
