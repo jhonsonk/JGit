@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Service;
 using System;
+using System.Threading.Tasks;
 
 namespace Api.Controllers
 {
@@ -17,7 +18,7 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult Get(string gitUrl)
+        public async Task<ActionResult> Get(string gitUrl)
         {
             try
             {
