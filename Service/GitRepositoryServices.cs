@@ -58,6 +58,7 @@ namespace Service
                 responsePerRepository.TotalFiles = responsePerRepository.PerExtension.Select(a => a.TotalFiles).Sum();
 
                 FileTools.SaveFile(responsePerRepository.Commit, Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(responsePerRepository)), tempPath);
+                Console.WriteLine("Save: " + responsePerRepository.Commit);
                 return responsePerRepository;
             }
             catch (Exception e)
