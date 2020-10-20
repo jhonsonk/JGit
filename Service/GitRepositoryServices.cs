@@ -60,8 +60,13 @@ namespace Service
                 return responsePerRepository;
             }
             catch (Exception e)
-            {                
-                throw new Exception(JsonConvert.SerializeObject(e));
+            {
+                string json = JsonConvert.SerializeObject(e, Formatting.Indented, new JsonSerializerSettings
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+
+                throw new Exception(json);
             }
         }
 
