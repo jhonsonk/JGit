@@ -18,7 +18,7 @@ namespace Service
         #region Mensagens
         private string ERROR = "An error has occurred when getting the repository";
         #endregion
-       
+
 
         private string tempPath = "";
         public GitRepositoryServices()
@@ -61,9 +61,12 @@ namespace Service
             }
             catch (Exception e)
             {
-                string json = JsonConvert.SerializeObject(e, Formatting.Indented, new JsonSerializerSettings
+                string json = JsonConvert.SerializeObject(e, new JsonSerializerSettings
                 {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                    Formatting = Newtonsoft.Json.Formatting.Indented,
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore,
                 });
 
                 throw new Exception(json);
