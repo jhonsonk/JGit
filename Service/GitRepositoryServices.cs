@@ -59,9 +59,9 @@ namespace Service
                 FileTools.SaveFile(responsePerRepository.Commit, Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(responsePerRepository)), tempPath);
                 return responsePerRepository;
             }
-            catch
+            catch (Exception e)
             {
-                throw new Exception(ERROR);
+                throw new Exception(ERROR, e);
             }
         }
 
