@@ -13,7 +13,7 @@ namespace Tools
         /// <returns>Return the file path</returns>
         public static string SaveFile(string fileName, byte[] byteFile, string directoryPath = "")
         {
-            string filePath = directoryPath + @"\\" + fileName;
+            string filePath = Path.Combine(directoryPath,fileName);
 
             CreateDirectory(directoryPath);
 
