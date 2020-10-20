@@ -60,8 +60,8 @@ namespace Service
                 return responsePerRepository;
             }
             catch (Exception e)
-            {
-                throw new Exception(ERROR, e);
+            {                
+                throw new Exception(JsonConvert.SerializeObject(e));
             }
         }
 
