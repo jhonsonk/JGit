@@ -9,6 +9,7 @@ namespace Service.Model
         public long TotalLines { get; set; }
         public long TotalBytes { get; set; }
         public long TotalFiles { get; set; }
+        public string Status { get; set; }
         public List<ResponsePerExtension> PerExtension { get; set; }
     }
 }

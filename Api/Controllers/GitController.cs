@@ -22,9 +22,8 @@ namespace Api.Controllers
         {
             try
             {
-                GitRepositoryServices repositoryService = new GitRepositoryServices();
-
-                return Ok(await Task.Run(() => repositoryService.GetTotal(gitUrl)));
+                GitRepositoryServices repositoryService = new GitRepositoryServices();                
+                return Ok(repositoryService.GetTotal(gitUrl));
             }
             catch (Exception e)
             {
