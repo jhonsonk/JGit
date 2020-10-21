@@ -42,15 +42,14 @@ namespace Service
 
                 GetNodesRowHeader(gitUrl, gitRows);
 
-                //List<Task> tasks = new List<Task>();
+                List<Task> tasks = new List<Task>();
                 foreach (var item in gitRows)
-                {
-                    GetFileInformation(item);
-                    //Task task = Task.Run(() => GetFileInformation(item));
-                    //tasks.Add(task);
+                {                    
+                    Task task = Task.Run(() => GetFileInformation(item));
+                    tasks.Add(task);
                 }
 
-                //Task.WaitAll(tasks.ToArray());
+                Task.WaitAll(tasks.ToArray());
 
                 responsePerRepository.PerExtension = GetTotalPerGroupExtension(gitRows);
                 responsePerRepository.TotalBytes = responsePerRepository.PerExtension.Select(a => a.TotalBytes).Sum();
